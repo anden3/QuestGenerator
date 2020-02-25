@@ -8,20 +8,16 @@ using System.Runtime.InteropServices;
 namespace QuestGenerator
 {
     [StructLayout(LayoutKind.Sequential)]
-    internal struct Action
-    {
-        public string op;
-    }
-
-    [StructLayout(LayoutKind.Sequential)]
     internal struct Result
     {
+        [MarshalAs(UnmanagedType.LPStr)]
         public string problem;
+
         public float timeTaken;
         public int length;
         public int cost;
 
-        public Action[] actions;
+        public IntPtr actions;
     }
 
     public static class Planner
@@ -53,7 +49,7 @@ namespace QuestGenerator
             public int milliseconds;
         }
 
-        public static void PlanPath(
+        public static string[] PlanPath(
             string problem,
             string domain,
 
@@ -121,18 +117,36 @@ namespace QuestGenerator
 
             string[] argArray = arguments.ToArray();
 
-            Result result = new Result();
-            int returnValue = NativeMethods.Plan(arguments.Count, argArray, ref result);
-            Debug.WriteLine(returnValue);
+            IntPtr ptr = IntPtr.Zero;
+            int count = NativeMethods.Plan(arguments.Count, argArray, out ptr);
+
+            return NativeMethods.MarshalStringArray(ptr, count);
         }
     }
 
     internal static class NativeMethods
     {
-        [DllImport("hsp2.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
-        internal static extern int Plan(int argc, string[] argv, ref Result result);
+        [DllImport("HSP2.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int Plan(int argc, string[] argv, out IntPtr result);
 
         [DllImport("Kernel32.dll", SetLastError = true)]
         internal static extern int SetStdHandle(int device, IntPtr handle);
+
+        internal static string[] MarshalStringArray(IntPtr array, int count)
+        {
+            IntPtr[] ptrArray = new IntPtr[count];
+            string[] strings = new string[count];
+
+            Marshal.Copy(array, ptrArray, 0, count);
+
+            for (int i = 0; i < count; i++)
+            {
+                strings[i] = Marshal.PtrToStringAnsi(ptrArray[i]);
+                Marshal.FreeCoTaskMem(ptrArray[i]);
+            }
+
+            Marshal.FreeCoTaskMem(array);
+            return strings;
+        }
     }
 }

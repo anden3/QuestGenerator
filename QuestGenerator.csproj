@@ -103,6 +103,7 @@
   <ItemGroup>
     <Compile Include="Classes\Generator.cs" />
     <Compile Include="Classes\Planner.cs" />
+    <Compile Include="GlobalSuppressions.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

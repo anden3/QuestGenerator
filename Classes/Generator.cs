@@ -4,7 +4,7 @@
     {
         private static int Main()
         {
-            Planner.PlanPath("blocks.pddl", "domain.pddl");
+            string[] path = Planner.PlanPath("blocks.pddl", "domain.pddl");
             return 0;
         }
     }
