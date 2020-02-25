@@ -1,9 +1,10 @@
 ﻿namespace QuestGenerator
 {
-    class Generator
+    internal class Generator
     {
-        static int Main()
+        private static int Main()
         {
+            Planner.PlanPath("blocks.pddl", "domain.pddl");
             return 0;
         }
     }
