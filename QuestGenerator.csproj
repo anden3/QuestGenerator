@@ -74,7 +74,6 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="bin\Debug\" />
     <Folder Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
@@ -103,7 +102,11 @@
   <ItemGroup>
     <Compile Include="Classes\Generator.cs" />
     <Compile Include="Classes\Planner.cs" />
-    <Compile Include="GlobalSuppressions.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="bin\Debug\HSP2.dll" />
+    <Content Include="bin\Debug\solution.txt" />
+    <Content Include="bin\Release\HSP2.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

@@ -102,35 +102,75 @@ namespace QuestGenerator
             arguments.Add(problem);
             arguments.Add(domain);
 
-            FileStream filestream = new FileStream("logfile.txt", FileMode.Create);
-            using StreamWriter streamwriter = new StreamWriter(filestream)
-            {
-                AutoFlush = true
-            };
-
-            Console.SetOut(streamwriter);
-            Console.SetError(streamwriter);
-
-            IntPtr handle = filestream.SafeFileHandle.DangerousGetHandle();
-            int status = NativeMethods.SetStdHandle(-11, handle);
-            status = NativeMethods.SetStdHandle(-12, handle);
-
             string[] argArray = arguments.ToArray();
 
             IntPtr ptr = IntPtr.Zero;
-            int count = NativeMethods.Plan(arguments.Count, argArray, out ptr);
+            int count;
+
+            using (StreamWriter outStream = NativeMethods.RedirectConsoleToFile("solution.txt"))
+            {
+                count = NativeMethods.Plan(arguments.Count, argArray, out ptr);
+                NativeMethods.ResetConsole();
+            }
 
             return NativeMethods.MarshalStringArray(ptr, count);
+        }
+
+        public static bool IsSolutionValid(string problem, string domain, string[] steps)
+        {
+            if (steps == null)
+                return false;
+
+            return NativeMethods.IsPathValid(problem, domain, steps, steps.Length) != 0;
         }
     }
 
     internal static class NativeMethods
     {
+        private const int STD_OUTPUT_HANDLE = -11;
+        private const int STD_ERROR_HANDLE = -12;
+
+        private static TextWriter STDOUT;
+        private static TextWriter STDERR;
+
         [DllImport("HSP2.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
         internal static extern int Plan(int argc, string[] argv, out IntPtr result);
 
+        [DllImport("HSP2.dll", CharSet = CharSet.Ansi, CallingConvention = CallingConvention.Cdecl)]
+        internal static extern int IsPathValid(string problem, string domain, string[] path, int pathLength);
+
         [DllImport("Kernel32.dll", SetLastError = true)]
-        internal static extern int SetStdHandle(int device, IntPtr handle);
+        private static extern int SetStdHandle(int device, IntPtr handle);
+
+        internal static StreamWriter RedirectConsoleToFile(string fileName)
+        {
+            STDOUT = Console.Out;
+            STDERR = Console.Error;
+
+            FileStream filestream = new FileStream(fileName, FileMode.Create);
+            StreamWriter streamwriter = new StreamWriter(filestream);
+
+            IntPtr handle = filestream.SafeFileHandle.DangerousGetHandle();
+
+            if (SetStdHandle(STD_OUTPUT_HANDLE, handle) == 0)
+                Console.WriteLine("[ERROR] Redirection of stdout failed.");
+            if (SetStdHandle(STD_ERROR_HANDLE, handle) == 0)
+                Console.WriteLine("[ERROR] Redirection of stderr failed.");
+
+            Console.SetOut(streamwriter);
+            Console.SetError(streamwriter);
+
+            return streamwriter;
+        }
+
+        internal static void ResetConsole()
+        {
+            Console.Out.Flush();
+            Console.Error.Flush();
+
+            Console.SetOut(STDOUT ?? Console.Out);
+            Console.SetError(STDERR ?? Console.Error);
+        }
 
         internal static string[] MarshalStringArray(IntPtr array, int count)
         {
