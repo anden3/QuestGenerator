@@ -6,7 +6,6 @@ namespace QuestGenerator
     {
         private static int Main()
         {
-            /*
             string[] path = Planner.PlanPath(
                 problem: "blocks.pddl",
                 domain: "domain.pddl"
@@ -16,7 +15,6 @@ namespace QuestGenerator
             {
                 Console.WriteLine(action);
             }
-            */
 
             bool isValid = Planner.IsSolutionValid(
                 problem: "blocks.pddl",
@@ -27,7 +25,7 @@ namespace QuestGenerator
                     "(PICK-UP C)",
                     "(STACK C B)",
                     "(PICK-UP D)",
-                    "(STACK D A)"
+                    "(STACK D C)"
             });
 
             Console.WriteLine("Solution is " + (isValid ? "valid" : "not valid"));
