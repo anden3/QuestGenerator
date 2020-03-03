@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace QuestGenerator
 {
@@ -8,7 +9,8 @@ namespace QuestGenerator
         {
             string[] path = Planner.PlanPath(
                 problem: "blocks.pddl",
-                domain: "domain.pddl"
+                domain: "domain.pddl",
+                verbosity: 0
             );
 
             foreach (string action in path)

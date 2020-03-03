@@ -17,7 +17,7 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>QuestGenerator</RootNamespace>
     <AssemblyName>QuestGenerator</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
@@ -100,8 +100,10 @@
     <Analyzer Include="packages\Microsoft.NetFramework.Analyzers.2.9.6\analyzers\dotnet\cs\Microsoft.NetFramework.CSharp.Analyzers.dll" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Classes\Evaluator.cs" />
     <Compile Include="Classes\Generator.cs" />
     <Compile Include="Classes\Planner.cs" />
+    <Compile Include="Classes\World.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="bin\Debug\HSP2.dll" />
