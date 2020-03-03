@@ -18,10 +18,10 @@ namespace QuestGenerator
 
     public class Precondition
     {
-        public string precondition;
+        public string name;
         public List<int> parameters = new List<int>();
 
-        public bool Evaluate() => World.preconditions[precondition](this);
+        public bool Evaluate(WorldState state) => World.preconditions[name](parameters, state);
     }
 
     public class Action
@@ -31,9 +31,9 @@ namespace QuestGenerator
 
         public List<Precondition> preconditions = new List<Precondition>();
 
-        public bool CanExecute() => preconditions.TrueForAll(p => p.Evaluate());
+        public bool CanExecute(WorldState state) => preconditions.TrueForAll(p => p.Evaluate(state));
 
-        public void Execute(World world)
+        public void Execute(WorldState state)
         {
             switch (type)
             {
@@ -48,9 +48,11 @@ namespace QuestGenerator
     public class Node
     {
         public Action action;
-        public Node parent = null;
-
         public List<int> parameters = new List<int>();
+
+        public WorldState state;
+
+        public Node parent = null;
         public List<Node> next = new List<Node>();
     }
 
@@ -59,18 +61,21 @@ namespace QuestGenerator
         public bool alive;
     }
 
+    public class WorldState
+    {
+        public Character[] characters;
+    }
+
     public class World
     {
-        public static Dictionary<string, Predicate<Precondition>> preconditions
-            = new Dictionary<string, Predicate<Precondition>>
+        public static Dictionary<string, Func<List<int>, WorldState, bool>> preconditions
+            = new Dictionary<string, Func<List<int>, WorldState, bool>>
         {
-            {"alive", (Precondition p) => characters[p.parameters[0]].alive }
+            {"alive", (List<int> arg, WorldState s) => s.characters[arg[0]].alive }
         };
 
-        public static Character[] characters;
-
         public static Action[] actions;
-        public static Precondition[] startState;
+        public static WorldState startState;
 
         public List<Node> nodes = new List<Node>();
     }
