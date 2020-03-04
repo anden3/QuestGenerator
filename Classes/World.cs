@@ -56,16 +56,6 @@ namespace QuestGenerator
         public List<Node> next = new List<Node>();
     }
 
-    public class Character
-    {
-        public bool alive;
-    }
-
-    public class WorldState
-    {
-        public Character[] characters;
-    }
-
     public class World
     {
         public static Dictionary<string, Func<List<int>, WorldState, bool>> preconditions

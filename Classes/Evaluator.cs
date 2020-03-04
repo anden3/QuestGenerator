@@ -20,7 +20,8 @@ namespace QuestGenerator
             new BranchCountEvaluator(),
             new CostEvaluator(),
             new EncounterEvaluator(),
-            new UniquenessEvaluator()
+            new UniquenessEvaluator(),
+            new WeightOfChoicesEvaluator()
         };
 
         public static float EvaluateWorld(World world)
@@ -145,6 +146,79 @@ namespace QuestGenerator
             return uniqueness.Min()     * minWeight +
             (float)uniqueness.Average() * avgWeight +
                    uniqueness.Max()     * maxWeight;
+        }
+    }
+
+    internal class WeightOfChoicesEvaluator : IEvaluator
+    {
+        private const float minWeight = 1.0f;
+        private const float avgWeight = 1.0f;
+        private const float maxWeight = 1.0f;
+
+        public float Evaluate(World world, PathList paths)
+        {
+            List<WorldState> endStates = GetEndStates(world);
+
+            // Handshake problem.
+            List<float> differences = new List<float>(endStates.Count * (endStates.Count - 1) / 2);
+
+            for (int i = 0; i < endStates.Count; ++i)
+            {
+                for (int j = i + 1; j < endStates.Count; ++j)
+                {
+                    WorldState a = endStates[i];
+                    WorldState b = endStates[j];
+
+                    int allAttributes = 0;
+                    int commonAttributes = 0;
+
+                    allAttributes += Utility.GetFullAttributeCount(a.characters, b.characters);
+                    commonAttributes += Utility.GetCommonAttributeCount(a.characters, b.characters);
+
+                    int allRelations = a.relations.Union(b.relations).Count();
+                    int commonRelations = a.relations.Intersect(b.relations).Count();
+
+                    differences.Add((commonAttributes + commonRelations) / (allAttributes + allRelations));
+                }
+            }
+
+            return differences.Min()     * minWeight +
+                   differences.Average() * avgWeight +
+                   differences.Max()     * maxWeight;
+        }
+
+        private List<WorldState> GetEndStates(World world)
+        {
+
+        }
+    }
+
+    internal class NarrativeRichnessEvaluator : IEvaluator
+    {
+        private const float minWeight = 1.0f;
+        private const float avgWeight = 1.0f;
+        private const float maxWeight = 1.0f;
+
+        public float Evaluate(World world, PathList paths)
+        {
+            List<WorldState> endStates = GetEndStates(world);
+
+            // Handshake problem.
+            List<float> differences = new List<float>(endStates.Count * (endStates.Count - 1) / 2);
+
+            foreach (WorldState state in endStates)
+            {
+                // Find how many preconditions in start state has been changed in state.
+            }
+
+            return differences.Min()     * minWeight +
+                   differences.Average() * avgWeight +
+                   differences.Max()     * maxWeight;
+        }
+
+        private List<WorldState> GetEndStates(World world)
+        {
+
         }
     }
 }
